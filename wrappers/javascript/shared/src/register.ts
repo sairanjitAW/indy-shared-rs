@@ -1,4 +1,6 @@
-// TODO: types
-export let indyCredx: any
+import type { IndyCredx } from './IndyCredx'
 
-export const registerIndyCredx = ({ credx: askar }: { credx: any }) => (indyCredx = askar)
+// TODO: types
+export let indyCredx: IndyCredx
+
+export const registerIndyCredx = ({ credx: askar }: { credx: IndyCredx }) => (indyCredx = askar)

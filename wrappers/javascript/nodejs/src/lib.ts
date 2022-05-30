@@ -68,6 +68,7 @@ const getLibrary = () => {
 
 interface NativeMethods {
   credx_version(): string
+  credx_get_current_error(ret: Buffer): number
 }
 
 // @ts-ignore
