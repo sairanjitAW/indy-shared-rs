@@ -3,6 +3,7 @@ import { refType } from 'ref-napi'
 export const FFI_STRING = 'string'
 export const FFI_STRING_PTR = refType(FFI_STRING)
 export const FFI_ERRORCODE = 'uint'
+export const FFI_OBJECT_HANDLE = 'usize'
 
 export const nativeBindings = {
   // first element is method return type, second element is list of method argument types
