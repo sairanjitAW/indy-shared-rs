@@ -1,14 +1,7 @@
 name: "Build Packages"
 
-"on":
-  release:
-    types: [created]
+on:
   workflow_dispatch:
-    inputs:
-      publish:
-        description: "Publish packages"
-        required: true
-        default: "false"
 
 jobs:
   build-manylinux:
@@ -102,75 +95,3 @@ jobs:
         with:
           name: library-${{ runner.os }}
           path: target/release/${{ matrix.lib }}
-
-  build-py:
-    name: Build Python
-    needs: [build-manylinux, build-other]
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-11, windows-latest]
-        python-version: [3.6]
-        include:
-          - os: ubuntu-latest
-            plat-name: manylinux2014_x86_64
-          - os: macos-11
-            plat-name: macosx_10_9_universal2 # macosx_10_9_x86_64
-          - os: windows-latest
-            plat-name: win_amd64
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools wheel twine auditwheel
-
-      - name: Fetch library artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: library-${{ runner.os }}
-          path: wrappers/python/indy_credx/
-
-      - name: Build python package
-        run: |
-          python setup.py bdist_wheel --python-tag=py3 --plat-name=${{ matrix.plat-name }}
-        working-directory: wrappers/python
-
-      - name: Test python package
-        shell: sh
-        run: |
-          cd wrappers/python
-          pip install --upgrade pip
-          pip install dist/*
-          python -m demo.test
-
-      - if: "runner.os == 'Linux'"
-        name: Auditwheel
-        run: auditwheel show wrappers/python/dist/*
-
-      - name: Upload python package
-        uses: actions/upload-artifact@v2
-        with:
-          name: python-${{ runner.os }}
-          path: wrappers/python/dist/*
-
-      - if: |
-          (github.event_name == 'release' ||
-            (github.event_name == 'workflow_dispatch' &&
-             github.event.inputs.publish == 'true'))
-        name: Publish python package
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: |
-          twine upload --skip-existing wrappers/python/dist/*
