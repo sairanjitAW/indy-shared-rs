@@ -3,11 +3,39 @@
 
 import type { ObjectHandle } from './ObjectHandle'
 
-// inside `indy-credx-shared` we do not need to create two mappings there
+export type CredentialEntry = {
+  credential: ObjectHandle
+  timestamp: number
+  revState: ObjectHandle
+}
+
+export type CredentialProve = {
+  entryIdx: number
+  referent: string
+  isPredicate: boolean
+  reveal: boolean
+}
+
+export type RevocationEntry = {
+  defEntryIdx: number
+  entry: ObjectHandle
+  timestamp: number
+}
+
 export interface IndyCredx {
   version(): string
 
   getCurrentError(): string
+
+  generateNonce(): string
+
+  createSchema(options: {
+    originDid: string
+    name: string
+    version: string
+    attrNames: string[]
+    seqNo: number | null
+  }): ObjectHandle
 
   createCredentialDefinition(options: {
     originDid: string
@@ -18,23 +46,23 @@ export interface IndyCredx {
   }): [ObjectHandle, ObjectHandle, ObjectHandle]
 
   createCredential(options: {
-    cred_def: ObjectHandle
-    cred_def_private: ObjectHandle
-    cred_offer: ObjectHandle
-    cred_request: ObjectHandle
-    attr_raw_values: { [key: string]: string }
-    attr_enc_values?: { [key: string]: string }
-    revocation_config?: { [key: string]: string }
+    credDef: ObjectHandle
+    credDefPrivate: ObjectHandle
+    credOffer: ObjectHandle
+    credRequest: ObjectHandle
+    attrRawValues: Record<string, string>
+    attrEncValues: Record<string, string> | null
+    revocationConfig: Record<string, string> | null
   }): [ObjectHandle, ObjectHandle, ObjectHandle]
 
-  encodeCredentialAttributes(attrRawValues: { [key: string]: string }): { [key: string]: string }
+  encodeCredentialAttributes(attrRawValues: Record<string, string>): Record<string, string>
 
   processCredential(options: {
     cred: ObjectHandle
     credReqMetadata: ObjectHandle
     masterSecret: ObjectHandle
     credDef: ObjectHandle
-    revRegDef?: ObjectHandle
+    revRegDef: ObjectHandle | null
   }): ObjectHandle
 
   revokeCredential(options: {
@@ -55,4 +83,52 @@ export interface IndyCredx {
   }): [ObjectHandle, ObjectHandle]
 
   createMasterSecret(): ObjectHandle
+
+  createPresentation(options: {
+    presReq: ObjectHandle
+    credentials: CredentialEntry[]
+    credentialsProve: CredentialProve[]
+    selfAttest: Record<string, string>[]
+    masterSecret: ObjectHandle
+    schemas: ObjectHandle[]
+    credDefs: ObjectHandle[]
+  }): ObjectHandle
+
+  verifyPresentation(options: {
+    presentation: ObjectHandle
+    presReq: ObjectHandle
+    schemas: ObjectHandle[]
+    credDefs: ObjectHandle[]
+    revRegDefs: ObjectHandle[]
+    revRegs: RevocationEntry[]
+  }): boolean
+
+  createRevocationRegistry(options: {
+    originDid: string
+    credDef: ObjectHandle
+    tag: string
+    revRegType: string
+    issuanceType: string | null
+    maxCredNum: number
+    tailsDirPath: string | null
+  }): [ObjectHandle, ObjectHandle, ObjectHandle, ObjectHandle]
+
+  updateRevocationRegistry(options: {
+    revRegDef: ObjectHandle
+    revReg: ObjectHandle
+    issued: number[]
+    revoked: number[]
+    tailsPath: string
+  }): [ObjectHandle, ObjectHandle]
+
+  mergeRevocationRegistryDeltas(options: { revRegDelta1: ObjectHandle; revRegDelta2: ObjectHandle }): ObjectHandle
+
+  createOrUpdateRevocationState(options: {
+    revRegDef: ObjectHandle
+    revRegDelta: ObjectHandle
+    revRegIndex: number
+    timestamp: number
+    tailsPath: string
+    prevRevState: ObjectHandle | null
+  }): ObjectHandle
 }
