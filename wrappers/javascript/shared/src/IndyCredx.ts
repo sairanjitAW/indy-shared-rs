@@ -6,18 +6,18 @@ import type { ObjectHandle } from './ObjectHandle'
 export type CredentialEntry = {
   credential: ObjectHandle
   timestamp: number
-  revState: ObjectHandle
+  revocationState: ObjectHandle
 }
 
 export type CredentialProve = {
-  entryIdx: number
+  entryIndex: number
   referent: string
   isPredicate: boolean
   reveal: boolean
 }
 
 export type RevocationEntry = {
-  defEntryIdx: number
+  revocationRegistryDefinitionEntryIndex: number
   entry: ObjectHandle
   timestamp: number
 }
@@ -33,8 +33,8 @@ export interface IndyCredx {
     originDid: string
     name: string
     version: string
-    attrNames: string[]
-    seqNo: number | null
+    attributeNames: string[]
+    sequenceNumber?: number
   }): ObjectHandle
 
   createCredentialDefinition(options: {
@@ -46,89 +46,96 @@ export interface IndyCredx {
   }): [ObjectHandle, ObjectHandle, ObjectHandle]
 
   createCredential(options: {
-    credDef: ObjectHandle
-    credDefPrivate: ObjectHandle
-    credOffer: ObjectHandle
-    credRequest: ObjectHandle
-    attrRawValues: Record<string, string>
-    attrEncValues: Record<string, string> | null
-    revocationConfig: Record<string, string> | null
+    credentialDefinition: ObjectHandle
+    credentialDefinitionPrivate: ObjectHandle
+    credentialOffer: ObjectHandle
+    credentialRequest: ObjectHandle
+    attributeRawValues: Record<string, string>
+    attributeEncodedValues?: Record<string, string>
+    revocationConfiguration?: Record<string, string>
   }): [ObjectHandle, ObjectHandle, ObjectHandle]
 
-  encodeCredentialAttributes(attrRawValues: Record<string, string>): Record<string, string>
+  encodeCredentialAttributes(attributeRawValues: Record<string, string>): Record<string, string>
 
   processCredential(options: {
-    cred: ObjectHandle
-    credReqMetadata: ObjectHandle
+    credential: ObjectHandle
+    credentialRequestMetadata: ObjectHandle
     masterSecret: ObjectHandle
-    credDef: ObjectHandle
-    revRegDef: ObjectHandle | null
+    credentialDefinition: ObjectHandle
+    revocationRegistryDefinition?: ObjectHandle
   }): ObjectHandle
 
   revokeCredential(options: {
-    revRegDef: ObjectHandle
-    revReg: ObjectHandle
-    credRevIdx: number
+    revocationRegistryDefinition: ObjectHandle
+    revocationRegistry: ObjectHandle
+    credentialRevocationIndex: number
     tailsPath: string
   }): [ObjectHandle, ObjectHandle, ObjectHandle]
 
-  createCredentialOffer(options: { schemaId: string; credDef: ObjectHandle; keyProof: ObjectHandle }): ObjectHandle
+  createCredentialOffer(options: {
+    schemaId: string
+    credentialDefinition: ObjectHandle
+    keyProof: ObjectHandle
+  }): ObjectHandle
 
   createCredentialRequest(options: {
     proverDid: string
-    credDef: ObjectHandle
+    credentialDefinition: ObjectHandle
     masterSecret: ObjectHandle
     masterSecretId: string
-    credOffer: ObjectHandle
+    credentialOffer: ObjectHandle
   }): [ObjectHandle, ObjectHandle]
 
   createMasterSecret(): ObjectHandle
 
   createPresentation(options: {
-    presReq: ObjectHandle
+    presentationRequest: ObjectHandle
     credentials: CredentialEntry[]
     credentialsProve: CredentialProve[]
     selfAttest: Record<string, string>[]
     masterSecret: ObjectHandle
     schemas: ObjectHandle[]
-    credDefs: ObjectHandle[]
+    credentialDefinitions: ObjectHandle[]
   }): ObjectHandle
 
   verifyPresentation(options: {
     presentation: ObjectHandle
-    presReq: ObjectHandle
+    presentationRequest: ObjectHandle
     schemas: ObjectHandle[]
-    credDefs: ObjectHandle[]
-    revRegDefs: ObjectHandle[]
-    revRegs: RevocationEntry[]
+    credentialDefinitions: ObjectHandle[]
+    revocationRegistryDefinitions: ObjectHandle[]
+    revocationRegistries: RevocationEntry[]
   }): boolean
 
   createRevocationRegistry(options: {
     originDid: string
-    credDef: ObjectHandle
+    credentialDefinition: ObjectHandle
     tag: string
-    revRegType: string
-    issuanceType: string | null
-    maxCredNum: number
-    tailsDirPath: string | null
+    revocationRegistryType: string
+    issuanceType?: string
+    maximumCredentialNumber: number
+    tailsDirectoryPath?: string
   }): [ObjectHandle, ObjectHandle, ObjectHandle, ObjectHandle]
 
   updateRevocationRegistry(options: {
-    revRegDef: ObjectHandle
-    revReg: ObjectHandle
+    revocationRegistryDefinition: ObjectHandle
+    revocationRegistry: ObjectHandle
     issued: number[]
     revoked: number[]
-    tailsPath: string
+    tailsDirectoryPath: string
   }): [ObjectHandle, ObjectHandle]
 
-  mergeRevocationRegistryDeltas(options: { revRegDelta1: ObjectHandle; revRegDelta2: ObjectHandle }): ObjectHandle
+  mergeRevocationRegistryDeltas(options: {
+    revocationRegistryDelta1: ObjectHandle
+    revocationRegistryDelta2: ObjectHandle
+  }): ObjectHandle
 
   createOrUpdateRevocationState(options: {
-    revRegDef: ObjectHandle
-    revRegDelta: ObjectHandle
-    revRegIndex: number
+    revocationRegistryDefinition: ObjectHandle
+    revocationRegistryDelta: ObjectHandle
+    revocationRegistryIndex: number
     timestamp: number
     tailsPath: string
-    prevRevState: ObjectHandle | null
+    previousRevocationState?: ObjectHandle
   }): ObjectHandle
 }
