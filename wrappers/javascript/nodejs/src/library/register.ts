@@ -1,9 +1,11 @@
+import type { NativeMethods } from './NativeBindingInterface'
+
 import { Library } from 'ffi-napi'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
 
-import { nativeBindings } from './ffi'
+import { nativeBindings } from './bindings'
 
 const LIBNAME = 'indy_credx'
 const ENV_VAR = 'LIB_INDY_CREDX_PATH'
@@ -45,31 +47,22 @@ const getLibrary = () => {
   if (pathFromEnvironment) platformPaths.unshift(pathFromEnvironment)
 
   // Create the path + file
-  const libcredx = platformPaths.map((p) =>
+  const libaries = platformPaths.map((p) =>
     path.join(p, `${extensions[platform].prefix ?? ''}${LIBNAME}${extensions[platform].extension}`)
   )
 
   // Gaurd so we quit if there is no valid path for the library
-  if (!libcredx.some(doesPathExist))
-    throw new Error(`Could not find ${LIBNAME} with these paths: ${libcredx.join(' ')}`)
+  if (!libaries.some(doesPathExist))
+    throw new Error(`Could not find ${LIBNAME} with these paths: ${libaries.join(' ')}`)
 
   // Get the first valid library
   // Casting here as a string because there is a guard of none of the paths
-  const validLibraryPath = libcredx.find((l) => doesPathExist(l)) as string
-
-  console.log(validLibraryPath)
+  const validLibraryPath = libaries.find((l) => doesPathExist(l)) as string
 
   // TODO
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return Library(validLibraryPath, nativeBindings)
 }
 
-interface NativeMethods {
-  credx_version(): string
-  credx_get_current_error(ret: Buffer): number
-}
-
-// @ts-ignore
-export const nativeIndyCredx = getLibrary() as NativeMethods
+export const nativeIndyCredx = getLibrary() as unknown as NativeMethods

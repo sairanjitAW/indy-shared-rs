@@ -5,7 +5,6 @@
   "workspaces": {
     "packages": [
       "shared",
-      "react-native",
       "nodejs"
     ]
   },
