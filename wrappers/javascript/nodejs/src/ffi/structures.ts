@@ -2,27 +2,39 @@ import { default as array } from 'ref-array-di'
 import * as ref from 'ref-napi'
 import { default as struct } from 'ref-struct-di'
 
-import { FFI_INT64, FFI_INT8, FFI_ISIZE, FFI_ISIZE_PTR, FFI_UINT8 } from './primitives'
+import { FFI_INT64, FFI_INT8, FFI_ISIZE, FFI_ISIZE_PTR, FFI_UINT, FFI_UINT8, FFI_STRING } from './primitives'
 
 const CStruct = struct(ref)
 const CArray = array(ref)
 
+export const StringArray = CArray('string')
+
 const FFI_UINT8_ARRAY = CArray(FFI_UINT8)
-const FFI_INT64_ARRAY = CArray(FFI_INT64)
+
+const FFI_INT64_ARRAY = CArray('int64')
 const FFI_INT64_ARRAY_PTR = ref.refType(FFI_INT64_ARRAY)
 const FFI_UINT8_ARRAY_PTR = ref.refType(FFI_UINT8_ARRAY)
 
+export const ByteBufferArray = CArray('uint8')
+export const ByteBufferArrayPtr = ref.refType(FFI_STRING)
+
+export const Int64Array = FFI_INT64_ARRAY
+
+export const StringArrayPtr = ref.refType(StringArray)
+
 export const ByteBufferStruct = CStruct({
   len: FFI_INT64,
-  data: FFI_UINT8_ARRAY_PTR,
+  data: ByteBufferArrayPtr,
 })
 
 export const ByteBufferStructPtr = ref.refType(ByteBufferStruct)
 
 export const StringListStruct = CStruct({
-  count: FFI_ISIZE,
-  data: FFI_UINT8_ARRAY_PTR,
+  count: ref.types.size_t,
+  data: StringArray,
 })
+
+export const StringListStructPtr = ref.refType(StringListStruct)
 
 export const I64ListStruct = CStruct({
   count: FFI_ISIZE,
@@ -35,7 +47,7 @@ export const CredRevInfoStruct = CStruct({
   registry: FFI_ISIZE,
   reg_idx: FFI_INT64,
   reg_used: I64ListStruct,
-  tails_path: FFI_UINT8_ARRAY,
+  tails_path: FFI_STRING,
 })
 
 export const CredentialEntryStruct = CStruct({
@@ -44,26 +56,32 @@ export const CredentialEntryStruct = CStruct({
   rev_state: FFI_ISIZE,
 })
 
+export const CredentialEntryArray = CArray(CredentialEntryStruct)
+
 export const CredentialEntryListStruct = CStruct({
   count: FFI_ISIZE,
-  data: ref.refType(CredentialEntryStruct),
+  data: CredentialEntryArray,
 })
 
 export const CredentialProveStruct = CStruct({
   entry_idx: FFI_INT64,
-  referent: FFI_UINT8_ARRAY,
+  referent: FFI_STRING,
   is_predictable: FFI_INT8,
   reveal: FFI_INT8,
 })
 
-export const CredentialListProveStruct = CStruct({
+export const CredentialProveArray = CArray(CredentialProveStruct)
+
+export const CredentialProveListStruct = CStruct({
   count: FFI_ISIZE,
-  data: ref.refType(CredentialProveStruct),
+  data: CredentialProveArray,
 })
+
+export const ObjectHandleArray = CArray('size_t')
 
 export const ObjectHandleListStruct = CStruct({
   count: FFI_ISIZE,
-  data: FFI_ISIZE_PTR,
+  data: ObjectHandleArray,
 })
 
 export const RevocationEntryStruct = CStruct({
@@ -72,7 +90,9 @@ export const RevocationEntryStruct = CStruct({
   timestamp: FFI_INT64,
 })
 
+export const RevocationEntryArray = CArray(RevocationEntryStruct)
+
 export const RevocationEntryListStruct = CStruct({
   count: FFI_ISIZE,
-  data: ref.refType(RevocationEntryStruct),
+  data: RevocationEntryArray,
 })

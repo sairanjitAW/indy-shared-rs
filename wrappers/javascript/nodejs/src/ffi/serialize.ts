@@ -1,10 +1,20 @@
 import type { ByteBufferStruct } from './structures'
 
+import { ObjectHandle } from 'indy-credx-shared'
 import { NULL } from 'ref-napi'
 
-type Argument = Record<string, unknown> | Array<unknown> | Date | Uint8Array | SerializedArgument | boolean
+import { ObjectHandleListStruct, StringListStruct } from './structures'
 
-type SerializedArgument = string | number | ArrayBuffer | Buffer
+type Argument =
+  | Record<string, unknown>
+  | Array<unknown>
+  | Date
+  | Uint8Array
+  | SerializedArgument
+  | boolean
+  | ObjectHandle
+
+type SerializedArgument = string | number | ArrayBuffer | Buffer | typeof StringListStruct
 
 type SerializedArguments = Record<string, SerializedArgument>
 
@@ -19,8 +29,8 @@ export type SerializedOptions<Type> = Required<{
     ? number
     : Type[Property] extends Record<string, unknown>
     ? string
-    : Type[Property] extends Array<unknown>
-    ? string
+    : Type[Property] extends Array<string>
+    ? typeof StringListStruct
     : Type[Property] extends Array<unknown> | undefined
     ? string
     : Type[Property] extends Record<string, unknown> | undefined
@@ -35,6 +45,8 @@ export type SerializedOptions<Type> = Required<{
     ? number
     : Type[Property] extends Buffer
     ? Buffer
+    : Type[Property] extends ObjectHandle
+    ? number
     : Type[Property] extends Uint8Array
     ? typeof ByteBufferStruct
     : Type[Property] extends Uint8Array | undefined
@@ -58,6 +70,20 @@ const serialize = (arg: Argument): SerializedArgument => {
     case 'function':
       return arg
     case 'object':
+      if (arg instanceof ObjectHandle) {
+        return arg.handle
+      } else if (Array.isArray(arg)) {
+        if (arg.every((it) => typeof it === 'string')) {
+          // @ts-ignore
+          return StringListStruct({ count: arg.length, data: arg })
+        } else if (arg.every((it) => it instanceof ObjectHandle)) {
+          // @ts-ignore
+          return ObjectHandleListStruct({ count: arg.length, data: arg.map((item: ObjectHandle) => item.handle) })
+        } else if (arg.every((it) => typeof it === 'number')) {
+          // @ts-ignore
+          return I64ListStruct({ count: arg.length, data: Int64Array(arg) })
+        }
+      }
       // TODO: add more serialization here for classes and uint8arrays
       return JSON.stringify(arg)
     default:

@@ -11,7 +11,7 @@ import {
   FFI_INT8,
   FFI_INT64,
   CredentialEntryListStruct,
-  CredentialListProveStruct,
+  CredentialProveListStruct,
   ObjectHandleListStruct,
   FFI_STRING_PTR,
   ByteBufferStructPtr,
@@ -42,7 +42,16 @@ export const nativeBindings = {
   ],
   credx_create_credential_definition: [
     FFI_ERRORCODE,
-    [FFI_OBJECT_HANDLE, FFI_STRING, FFI_STRING, FFI_INT8, FFI_OBJECT_HANDLE, FFI_OBJECT_HANDLE],
+    [
+      FFI_STRING,
+      FFI_OBJECT_HANDLE,
+      FFI_STRING,
+      FFI_STRING,
+      FFI_INT8,
+      FFI_OBJECT_HANDLE_PTR,
+      FFI_OBJECT_HANDLE_PTR,
+      FFI_OBJECT_HANDLE_PTR,
+    ],
   ],
   credx_create_credential_offer: [
     FFI_ERRORCODE,
@@ -68,8 +77,9 @@ export const nativeBindings = {
   credx_create_presentation: [
     FFI_ERRORCODE,
     [
+      FFI_OBJECT_HANDLE,
       CredentialEntryListStruct,
-      CredentialListProveStruct,
+      CredentialProveListStruct,
       StringListStruct,
       StringListStruct,
       FFI_OBJECT_HANDLE,
@@ -99,6 +109,7 @@ export const nativeBindings = {
     [FFI_STRING, FFI_STRING, FFI_STRING, StringListStruct, FFI_INT64, FFI_OBJECT_HANDLE_PTR],
   ],
   credx_credential_definition_get_attribute: [FFI_ERRORCODE, [FFI_OBJECT_HANDLE, FFI_STRING, FFI_STRING_PTR]],
+  credx_credential_get_attribute: [FFI_ERRORCODE, [FFI_OBJECT_HANDLE, FFI_STRING, FFI_STRING_PTR]],
   credx_encode_credential_attributes: [FFI_ERRORCODE, [StringListStruct, FFI_STRING_PTR]],
   credx_generate_nonce: [FFI_ERRORCODE, [FFI_STRING_PTR]],
   credx_get_current_error: [FFI_ERRORCODE, [FFI_STRING_PTR]],
@@ -107,8 +118,9 @@ export const nativeBindings = {
     [FFI_OBJECT_HANDLE, FFI_OBJECT_HANDLE, FFI_OBJECT_HANDLE_PTR],
   ],
   credx_object_free: [FFI_VOID, [FFI_OBJECT_HANDLE]],
-  credx_object_get_json: [FFI_ERRORCODE, [ByteBufferStructPtr]],
-  credx_object_get_type_name: [FFI_ERRORCODE, [FFI_STRING_PTR]],
+  credx_object_get_json: [FFI_ERRORCODE, [FFI_OBJECT_HANDLE, ByteBufferStructPtr]],
+  credx_object_get_type_name: [FFI_ERRORCODE, [FFI_OBJECT_HANDLE, FFI_STRING_PTR]],
+  credx_presentation_request_from_json: [FFI_ERRORCODE, [ByteBufferStruct, FFI_STRING_PTR]],
   credx_process_credential: [
     FFI_ERRORCODE,
     [
@@ -129,7 +141,15 @@ export const nativeBindings = {
   credx_set_default_logger: [FFI_ERRORCODE, []],
   credx_update_revocation_registry: [
     FFI_ERRORCODE,
-    [FFI_OBJECT_HANDLE, FFI_OBJECT_HANDLE, I64ListStruct, I64ListStruct, FFI_OBJECT_HANDLE_PTR, FFI_OBJECT_HANDLE_PTR],
+    [
+      FFI_OBJECT_HANDLE,
+      FFI_OBJECT_HANDLE,
+      I64ListStruct,
+      I64ListStruct,
+      FFI_STRING,
+      FFI_OBJECT_HANDLE_PTR,
+      FFI_OBJECT_HANDLE_PTR,
+    ],
   ],
   credx_verify_presentation: [
     FFI_ERRORCODE,
