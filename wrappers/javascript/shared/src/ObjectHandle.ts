@@ -1,4 +1,4 @@
-import { IndyCredxError } from './error'
+import { indyCredx } from './register'
 
 export class ObjectHandle {
   private _handle: number
@@ -11,14 +11,12 @@ export class ObjectHandle {
     return this._handle
   }
 
-  // TODO: this should call: credx_object_get_type_name
   public typeName() {
-    throw new IndyCredxError({ code: 100, message: 'method typeName not implemented' })
+    return indyCredx.getTypeName({ object: this })
   }
 
   // TODO: do we need this?
-  // TODO: this should call: credx_object_free
   public clear() {
-    throw new IndyCredxError({ code: 100, message: 'method clear not implemented' })
+    indyCredx.objectFree({ object: this })
   }
 }

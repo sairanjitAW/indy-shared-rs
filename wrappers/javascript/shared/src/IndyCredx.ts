@@ -22,6 +22,15 @@ export type RevocationEntry = {
   timestamp: number
 }
 
+export type CredentialRevocationConfig = {
+  registryDefinition: ObjectHandle
+  registryDefinitionPrivate: ObjectHandle
+  registry: ObjectHandle
+  registryIndex: number
+  registryUsed?: number[]
+  tailsPath: string
+}
+
 export interface IndyCredx {
   version(): string
 
@@ -52,7 +61,7 @@ export interface IndyCredx {
     credentialRequest: ObjectHandle
     attributeRawValues: Record<string, string>
     attributeEncodedValues?: Record<string, string>
-    revocationConfiguration?: Record<string, string>
+    revocationConfiguration?: CredentialRevocationConfig
   }): [ObjectHandle, ObjectHandle, ObjectHandle]
 
   encodeCredentialAttributes(attributeRawValues: Record<string, string>): Record<string, string>
@@ -70,7 +79,7 @@ export interface IndyCredx {
     revocationRegistry: ObjectHandle
     credentialRevocationIndex: number
     tailsPath: string
-  }): [ObjectHandle, ObjectHandle, ObjectHandle]
+  }): [ObjectHandle, ObjectHandle]
 
   createCredentialOffer(options: {
     schemaId: string
@@ -92,7 +101,7 @@ export interface IndyCredx {
     presentationRequest: ObjectHandle
     credentials: CredentialEntry[]
     credentialsProve: CredentialProve[]
-    selfAttest: Record<string, string>[]
+    selfAttest: Record<string, string>
     masterSecret: ObjectHandle
     schemas: ObjectHandle[]
     credentialDefinitions: ObjectHandle[]
@@ -104,7 +113,7 @@ export interface IndyCredx {
     schemas: ObjectHandle[]
     credentialDefinitions: ObjectHandle[]
     revocationRegistryDefinitions: ObjectHandle[]
-    revocationRegistries: RevocationEntry[]
+    revocationEntries: RevocationEntry[]
   }): boolean
 
   createRevocationRegistry(options: {
@@ -138,4 +147,18 @@ export interface IndyCredx {
     tailsPath: string
     previousRevocationState?: ObjectHandle
   }): ObjectHandle
+
+  presentationRequestFromJson(options: { json: string }): ObjectHandle
+
+  schemaGetAttribute(options: { schema: ObjectHandle; name: string }): string
+
+  revocationRegistryDefinitionGetAttribute(options: { object: ObjectHandle; name: string }): string
+
+  credentialGetAttribute(options: { object: ObjectHandle; name: string }): string
+
+  getJson(options: { object: ObjectHandle }): string
+
+  getTypeName(options: { object: ObjectHandle }): string
+
+  objectFree(options: { object: ObjectHandle }): void
 }

@@ -1,4 +1,6 @@
+/* eslint-disable no-console */
 import { registerIndyCredx } from 'indy-credx-shared'
+
 import { NodeJSIndyCredx } from './NodeJSIndyCredx'
 
 const run = () => {

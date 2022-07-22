@@ -1,5 +1,6 @@
 import { ObjectHandle } from './ObjectHandle'
 import { IndyCredxError } from './error'
+import { indyCredx } from './register'
 
 export class IndyObject {
   private handle: ObjectHandle
@@ -18,9 +19,8 @@ export class IndyObject {
     throw new IndyCredxError({ code: 100, message: 'Method toBytes not implemented' })
   }
 
-  // TODO: this should call: credx_object_get_json
   public toJson() {
-    throw new IndyCredxError({ code: 100, message: 'Method toJson not implemented' })
+    return indyCredx.getJson({ object: this.handle })
   }
 
   // TODO: do we need this?
